@@ -5,7 +5,7 @@ Status: sprejeto
 Gradimo aplikacijo Daily Planner, sestavljeno iz več storitev v Javi. Aplikacija bo postavljena  na Kubernetes. Predmet uporablja CDI in Jakarta REST
 
 ## Odločitev
-Vse storitve gradimo z ogrodjem Quarkus,
+Vse storitve gradimo z ogrodjem Quarkus
 
 ## Posledice
 + hiter dev mode, standardni API-ji
