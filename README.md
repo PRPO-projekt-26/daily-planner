@@ -4,10 +4,9 @@ Daily planner for students: schedule, weather, countdowns and reminders.
 
 ## O projektu
 
-Daily Planner je aplikacija, ki študentom olajša organizacijo svojega dneva. Na enem mestu hrani dogodke iz koledarjev, osebne opomnike in vremensko napoved, omogoča personalizacijo urnika in ponuja deljenje dogodkov s prijatelji.
+Daily Planner je aplikacija, ki študentom olajša organizacijo svojega dneva. Na enem mestu hrani dogodke iz koledarjev, osebne opomnike in vremensko napoved.
 
-Uporabniku omogoča hiter pregled nad dnevom in priporočila, kako se nanj pripraviti.
-
+Uporabniku omogoča hiter pregled nad dnevom, da se lahko nanj lažje pripravi.
 ## Funkcionalnosti
 
 ### Dnevni pregled
@@ -15,25 +14,18 @@ Uporabniku omogoča hiter pregled nad dnevom in priporočila, kako se nanj pripr
 - povzetek uporabnik prejme kot potisno obvestilo
 - izpostavljeni opomniki, ki zahtevajo pozornost
 
-### Vreme in priporočila
+### Vreme
 - vremenska napoved za tekoči dan
-- praktični nasveti glede na vreme, na primer ali naj s seboj vzamemo
-  dežnik ali jakno
 
 ### Koledar in urnik
 - uvoz in brisanje zunanjih koledarjev
-- uvoz urnika in njegova prilagoditev
-- ustvarjanje in urejanje lastnih dogodkov, ločeno od uvoženih
+- uvoz urnika 
 
 ### Opomniki
 - ustvarjanje osebnih opomnikov
 - nastavitev datuma in ure opomnika
 - prikaz opomnikov skupaj z dnevnim urnikom
 
-### Prijatelji in deljeni dogodki
-- dodajanje prijateljev
-- pošiljanje in sprejemanje prošenj za prijateljstvo
-- deljenje lastnih dogodkov s prijatelji
 
 ## Člani in lastništvo storitev
 
