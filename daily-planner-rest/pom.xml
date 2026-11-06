@@ -40,7 +40,7 @@
                             <goal>generate</goal>
                         </goals>
                         <configuration>
-                            <inputSpec>${project.basedir}/openapi/openapi.yaml</inputSpec>
+                            <inputSpec>${project.basedir}/src/main/resources/META-INF/openapi.yaml</inputSpec>
                             <generatorName>jaxrs-spec</generatorName>
                             <generateSupportingFiles>false</generateSupportingFiles>
                             <apiPackage>si.skupina7.api</apiPackage>
