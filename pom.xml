@@ -12,11 +12,11 @@
 <packaging>pom</packaging>
 
 <!-- TODO: dopolni, ko dodaš modul -->
-<!--
+
 <modules>
-    <module></module> 
+    <module>daily-planner-rest</module> 
 </modules>
--->
+
 <properties>
     <maven.compiler.release>25</maven.compiler.release>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
