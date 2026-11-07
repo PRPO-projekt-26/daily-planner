@@ -1,13 +1,13 @@
-# ADR-001: Quarkus kot ogrodje storitev
-Status: sprejeto
+# ADR-001: Quarkus as a Service Framework
+Status: Accepted
 
-## Kontekst
-Gradimo aplikacijo Daily Planner, sestavljeno iz več storitev v Javi. Aplikacija bo postavljena  na Kubernetes. Predmet uporablja CDI in Jakarta REST
+## Context
+We are building the "Daily Planner" application, which consists of multiple services written in Java. The application will be deployed on Kubernetes. It utilizes CDI and Jakarta REST.
 
-## Odločitev
-Vse storitve gradimo z ogrodjem Quarkus
+## Decision
+We will build all services using the Quarkus framework.
 
-## Posledice
-+ hiter dev mode, standardni API-ji
-+ manjša poraba pomnilnika na Kubernetesu 
-- manj primerov na spletu kot za Spring
+## Consequences
++ Fast developer mode, standard APIs
++ Lower memory consumption on Kubernetes
+- Fewer online examples compared to Spring
