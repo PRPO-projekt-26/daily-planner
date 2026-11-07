@@ -1,47 +1,58 @@
 # daily-planner
 
-Daily planner for students: schedule, weather, countdowns and reminders.
+Daily planner for students: schedule, weather, events and reminders.
 
-## O projektu
+## About the project
 
-Daily Planner je aplikacija, ki študentom olajša organizacijo svojega dneva. Na enem mestu hrani dogodke iz koledarjev, osebne opomnike in vremensko napoved.
+Daily Planner is an app that helps students organize their day. It keeps calendar events, personal reminders and the weather forecast in one place.
 
-Uporabniku omogoča hiter pregled nad dnevom, da se lahko nanj lažje pripravi.
-## Funkcionalnosti
+It gives the user a quick overview of the day so they can prepare for it more easily.
 
-### Dnevni pregled
-- jutranji povzetek urnika, dogodkov, opomnikov, vremena in predlogov
-- povzetek uporabnik prejme kot potisno obvestilo
-- izpostavljeni opomniki, ki zahtevajo pozornost
+## Features
 
-### Vreme
-- vremenska napoved za tekoči dan
+### Daily overview
+- Morning summary of the schedule, events, reminders and weather
+- The summary is delivered to the user as a push notification
+- Shows the 3 earliest upcoming reminders
 
-### Koledar in urnik
-- uvoz in brisanje zunanjih koledarjev
-- uvoz urnika 
+### Weather
+- Weather forecast for the current day
 
-### Opomniki
-- ustvarjanje osebnih opomnikov
-- nastavitev datuma in ure opomnika
-- prikaz opomnikov skupaj z dnevnim urnikom
+### Calendar and schedule
+- Import and delete external calendars
+- Import the schedule
 
+### Reminders
+- Create personal reminders
+- Set the date and time of a reminder
+- Display reminders together with the daily schedule
 
-## Člani in lastništvo storitev
+## Members and service ownership
 
-| Član | GitHub | Lastništvo |
+| Member | GitHub | Ownership |
 |---|---|---|
-| Medeja Geršak | [@MedejaGersak](https://github.com/MedejaGersak) | še ni določeno|
-| Tisa Biček | [@vamp3k](https://github.com/vamp3k) | še ni določeno |
+| Medeja Geršak | [@MedejaGersak](https://github.com/MedejaGersak) | Not yet assigned |
+| Tisa Biček | [@vamp3k](https://github.com/vamp3k) | Not yet assigned |
 
-## Zahteve
+## Requirements
 
-Še niso določene. Dopolnili jih bomo, ko izberemo ogrodje in jezik.
+- Java 25 or newer
+- Maven 3.9 or newer
 
-## Gradnja in zagon
+## Build and run
 
-Navodila za gradnjo, zagon in testiranje bomo dodali ob prvi storitvi.
+Build the project:
 
-## Stanje projekta
+```bash
+mvn clean package
+```
 
-Projekt je trenutno v fazi načrtovanja in oblikovanja. Funkcije in tehnične odločitve se lahko med razvojem spremenijo.
+Run the REST service in development mode:
+
+```bash
+mvn -pl daily-planner-rest quarkus:dev
+```
+
+## Project status
+
+The project is currently in the planning and design phase. Features and technical decisions may change during development.
