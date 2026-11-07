@@ -1,0 +1,58 @@
+openapi: "3.0.3"
+info:
+  title: "Daily Planner REST API"
+  description: "API for managing daily tasks and planning."
+  version: "1.0.0"
+servers:
+  - url: "http://localhost:8080/api/v1"
+
+paths:
+  /weather:
+    get:
+      tags:
+        - "Weather"
+      summary: "Get current weather information"
+      description: "Retrieve the current weather information for a specified location."
+      operationId: "getCurrentWeather"
+      
+      # specified parameters exist only in this operation, so they are defined here!
+      parameters: 
+        - name: "city"
+          in: "query"
+          required: true
+          description: "Name of the city to retrieve weather information for."
+          schema:
+            type: "string"
+      responses:
+        '200':
+          description: "Successful retrieval of weather information."
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/WeatherResponse"
+        '400':
+          description: "Bad request. The city parameter is missing or invalid."
+        '404':
+          description: "City not found"
+
+components:
+  schemas:
+    WeatherResponse:
+      type: "object"
+      required:
+        - "city"
+        - "temperature"
+      properties:
+        city:
+          type: "string"
+          example: "Radovljica"
+          description: "Name of the city for which the weather information is provided."
+        temperature:
+          type: "number"
+          format: "double"
+          example: 20.5
+          description: "Current temperature in Celsius."
+        description:
+          type: "string"
+          example: "Clear sky"
+          description: "Description of the current weather conditions."
