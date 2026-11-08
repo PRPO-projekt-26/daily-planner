@@ -11,8 +11,7 @@ It gives the user a quick overview of the day so they can prepare for it more ea
 ## Features
 
 ### Daily overview
-- Morning summary of the schedule, events, reminders and weather
-- The summary is delivered to the user as a push notification
+- Morning summary of the schedule, calendar events, reminders and weather
 - Shows the 3 earliest upcoming reminders
 
 ### Weather
@@ -26,6 +25,7 @@ It gives the user a quick overview of the day so they can prepare for it more ea
 - Create personal reminders
 - Set the date and time of a reminder
 - Display reminders together with the daily schedule
+- Display reminders at set time 
 
 ## Members and service ownership
 
