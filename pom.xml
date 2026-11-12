@@ -1,52 +1,52 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<!-- Koren pom.xml datoteke (<project>). Atributi so XML nastavitve:
-     xmlns              = imenski prostor Maven POM; elementi brez predpone spadajo vanj
-     xmlns:xsi          = deklarira predpono xsi za atribute XML Schema
-     xsi:schemaLocation = kje je shema (XSD) za POM; Maven je ne potrebuje, uporabljajo jo
-                          urejevalniki za dopolnjevanje in preverjanje -->
-<project    xmlns="http://maven.apache.org/POM/4.0.0"  
+<!-- Root of the pom.xml file (<project>). The attributes are XML settings:
+     xmlns              = XML namespace of the Maven POM; elements without a prefix belong to it
+     xmlns:xsi          = declares the xsi prefix for XML Schema attributes
+     xsi:schemaLocation = where the schema (XSD) for the POM is located; Maven does not need it,
+                          it is used by editors for autocompletion and validation -->
+<project    xmlns="http://maven.apache.org/POM/4.0.0"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-<!-- verzija formata POM-a je pri mvn 3 in 4 vedno 4.0.0 -->
+<!-- version of the POM format; for Maven 3 and 4 it is always 4.0.0 -->
 <modelVersion>4.0.0</modelVersion>
 
-<!-- Podatki, ki enolično določajo ta projekt:
-     groupId    = skupina/organizacija, ki je lastnik projekta
-     artifactId = ime projekta
-     version    = verzija projekta -->
+<!-- Data that uniquely identifies this project:
+     groupId    = group/organization that owns the project
+     artifactId = name of the project
+     version    = version of the project -->
 <groupId>si.skupina7</groupId>
 <artifactId>daily-planner</artifactId>
-<version>1.0.0-SNAPSHOT</version>     <!-- SNAPSHOT = razvojna verzija, ki se še spreminja -->
+<version>1.0.0-SNAPSHOT</version>     <!-- SNAPSHOT = development version that is still changing -->
 
-<!-- tip "pom": ta modul sam ne ustvari jar-a, služi samo kot starš in zbiralnik modulov -->
+<!-- type "pom": this module does not produce a jar itself, it only serves as a parent and a collection of modules -->
 <packaging>pom</packaging>
 
-<!-- seznam podmodulov; Maven jih zgradi v tem vrstnem redu (glede na odvisnosti) -->
+<!-- list of submodules; Maven builds them in this order (based on dependencies) -->
 <modules>
-    <module>daily-planner-rest</module> <!-- mapa z modulom, ki vsebuje REST aplikacijo -->
+    <module>daily-planner-rest</module> <!-- folder with the module that contains the REST application -->
 </modules>
 
-<!-- skupne spremenljivke, ki jih lahko uporabljajo ta pom in vsi child pom-i kot ${ime} -->
+<!-- shared variables that this pom and all child poms can use as ${name} -->
 <properties>
-    <maven.compiler.release>25</maven.compiler.release> <!-- Java verzija, za katero se koda prevede (JDK 25) -->
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> <!-- kodiranje izvornih datotek, da šumniki (č, š, ž) ne povzročajo težav -->
-    <quarkus.platform.version>3.40.1.1</quarkus.platform.version>  <!-- verzija Quarkus platforme; na enem mestu, da jo menjaš samo tukaj -->
-    <quarkus-plugin.version>${quarkus.platform.version}</quarkus-plugin.version> <!-- verzija quarkus-maven-plugin; enaka kot platforma (child pom jo uporabi kot ${quarkus-plugin.version}) -->
+    <maven.compiler.release>25</maven.compiler.release> <!-- Java version the code is compiled for (JDK 25) -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> <!-- encoding of source files, so special characters (č, š, ž) do not cause problems -->
+    <quarkus.platform.version>3.40.1.1</quarkus.platform.version>  <!-- Quarkus platform version; defined in one place so you only change it here -->
+    <quarkus-plugin.version>${quarkus.platform.version}</quarkus-plugin.version> <!-- version of quarkus-maven-plugin; same as the platform (the child pom uses it as ${quarkus-plugin.version}) -->
 </properties>
 
 
-<!-- samo UPRAVLJA verzije odvisnosti; same po sebi ne doda nobene knjižnice v projekt -->
+<!-- only MANAGES dependency versions; by itself it does not add any library to the project -->
 <dependencyManagement>
     <dependencies>
-        <dependency> <!-- uvozimo Quarkus BOM -->
+        <dependency> <!-- import the Quarkus BOM -->
             <groupId>io.quarkus.platform</groupId>
             <artifactId>quarkus-bom</artifactId>
-            <version>${quarkus.platform.version}</version> 
-            <type>pom</type> <!-- BOM je pom datoteka, ne jar -->
-            <scope>import</scope> <!-- scope "import" pomeni: prepiši vse verzije iz BOM-a v naš dependencyManagement -->
+            <version>${quarkus.platform.version}</version>
+            <type>pom</type> <!-- the BOM is a pom file, not a jar -->
+            <scope>import</scope> <!-- scope "import" means: copy all versions from the BOM into our dependencyManagement -->
         </dependency>
     </dependencies>
-</dependencyManagement> 
+</dependencyManagement>
 </project>
