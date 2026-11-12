@@ -6,7 +6,176 @@ info:
 servers:
   - url: "http://localhost:8080/api/v1"
 
+tags:
+  - name: Planner
+    description: Daily overview and calandar operations
+  - name: Reminders
+    description: Reminder management
+
 paths:
+  # DAILY OVERVIEW
+  /planner/daily:
+    get:
+      tags:
+        - "Planner"
+      summary: "Get daily overview"
+      description: "Returns the person's daily schedule and calendar, top 3 reminder and weather forecast."
+      operationId: "getDailyOverview"
+      responses:
+        '200':
+          description: "Daily overview retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DailyOverview'
+
+        '404':
+          description: "Person not found"
+
+  # MONTHLY CALENDAR
+
+  /planner/calendars:
+    get:
+      tags:
+        - "Planner"
+      summary: "Get monthly calendar"
+      description: "Returns the person's calendar for a specified month."
+      operationId: "getMonthlyCalendar"
+      parameters:
+        - name: "month"
+          in: "query"
+          required: true
+          description: "Month to retrieve in MM-YYYY format"
+          schema:
+            type: "string"
+            pattern: '^(0[1-9]|1[0-2])-\d{4}$'
+            example: "11-2026"
+
+      responses:
+        '200':
+          description: "Monthly calendar retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MonthlyCalendar'
+
+        '404':
+          description: "Person not found"
+
+
+  # CREATE REMINDER
+
+  /planner/reminders:
+    post:
+      tags:
+        - "Reminders"
+      summary: "Create a reminder"
+      description: "Creates a reminder belonging to the authenticated person."
+      operationId: "createReminder"
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReminderRequest'
+
+      responses:
+        '201':
+          description: "Reminder created successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reminder'
+
+        '400':
+          description: "Invalid reminder data"
+
+        '404':
+          description: "Person not found"
+
+  
+
+  # GET ALL REMINDERS
+    get:
+      tags:
+        - "Reminders"
+      summary: "Get all the reminders"
+      description: "Retrives a list of all the existing reminders that have to be sent out as push notifications"
+      operationId: "getAllRemiders"
+
+      parameters:
+        - name: "dueBefore"
+          in: "query"
+          required: false 
+          description: "Retrives only the reminders that are due before the specifed date and time"
+          schema: 
+            type: "string"
+            format: "date-time"
+
+        - name: "notificationSent"
+          in: "query"
+          required: false
+          description: "Filter reminders according to whether a notification was sent."
+          schema:
+            type: "boolean"
+
+      responses:
+        '200':
+          description: "Reminders retrived successfully"
+          content:
+            aplication/json:
+              schema:
+                $ref: '#/components/schemas/ReminderList'
+
+
+  # DELETE REMINDER
+  /planner/reminders/{reminderId}:
+    delete:
+      tags:
+        - "Reminders"
+      summary: "Delete a reminder"
+      description: "Deletes a reminder using its unique ID"
+      operationId: "deleteReminder"
+      parameters:
+        - name: "reminderId"
+          in: "path"
+          required: true
+          description: "Unique ID of the reminder"
+          schema:
+            type: "string"
+
+      responses:
+        '204':
+          description: "Reminder deleted successfully"
+
+        '404':
+          description: "Reminder not found"
+
+
+
+  # GET REMINDERS FOR AUTHENTICATED PERSON
+
+
+  /planner/reminders/user:
+    get:
+      tags:
+        - "Reminders"
+      summary: "Get reminders of a person"
+      description: "Returns all reminders belonging to the authenticated person."
+      operationId: "getPersonReminders"
+
+      responses:
+        '200':
+          description: "Person's reminders retrieved successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ReminderList'
+
+        '404':
+          description: "Person not found"
+
   /weather:
     get:
       tags:
@@ -35,8 +204,165 @@ paths:
         '404':
           description: "City not found"
 
+
+# COMPONENTS
+
+
 components:
+
   schemas:
+
+    # REMINDER--------------------
+    ReminderRequest:
+      type: "object"
+      required:
+        - "content"
+        - "dueAt"
+      properties:
+        content:
+          type: "string"
+          description: "Content of the reminder"
+          example: "Class scheduled"
+
+        dueAt:
+          type: "string"
+          format: "date-time" 
+          description: "Date and time of when the reminder should be triggered"
+          example: "2026-05-12T16:30:00+01:00" # YYYY-MM-DDTHH:MM:SS+zamik(HH:MM)
+
+    Reminder:
+      type: "object"
+      required:
+        - "id"
+        - "content"
+        - "dueAt"
+        - "notificationSent"
+      properties:
+        id:
+          type: "string"
+          description: "Unique reminder ID"
+          example: "rem123"
+
+        content:
+          type: "string"
+          example: "Class scheduled"
+
+        dueAt:
+          type: "string"
+          format: "date-time"
+          example: "2026-11-12T16:30:00+01:00" # YYYY-MM-DDTHH:MM:SS+zamik(HH:MM)
+
+        notificationSent:
+          type: "boolean"
+          description: "Indicates whether the push notification has been sent"
+          default: false
+          example: false
+
+    ReminderList:
+      type: "object"
+      properties:
+        reminders:
+          type: "array"
+          items:
+            $ref: '#/components/schemas/Reminder'
+
+
+    # DAILY OVERVIEW -------------------------
+
+    DailyOverview:
+      type: "object"
+      properties:
+        date:
+          type: "string"
+          format: "date"
+          example: "2026-05-12"
+
+        schedule:
+          type: "array"
+          description: "All scheduled events for that day"
+          items:
+            $ref: '#/components/schemas/ScheduleEvent'
+
+        topReminders:
+          type: "array"
+          description: "The person's top three most recent reminders"
+          maxItems: 3
+          items:
+            $ref: '#/components/schemas/Reminder'
+
+        weather:
+          $ref: '#/components/schemas/WeatherResponse'
+
+    # SCHEDULE EVENT--------------------------
+
+    ScheduleEvent:
+      type: "object"
+      properties:
+        id:
+          type: "string"
+          example: "event123"
+
+        title:
+          type: "string"
+          example: "University lecture"
+
+        description:
+          type: "string"
+          example: "Software Engineering"
+
+        startTime:
+          type: "string"
+          format: "date-time"
+          example: "2026-11-12T09:00:00+01:00"
+
+        endTime:
+          type: "string"
+          format: "date-time"
+          example: "2026-11-12T11:00:00+01:00"
+
+        source:
+          type: "string"
+          description: "Origin of the event"
+          enum:
+            - "GOOGLE_CALENDAR"
+            - "IMPORTED_SCHEDULE"
+          example: "GOOGLE_CALENDAR"
+
+    # MONTHLY CALENDAR------------------
+
+    MonthlyCalendar:
+      type: "object"
+      properties:
+        month:
+          type: "string"
+          example: "2026-11"
+
+        days:
+          type: "array"
+          description: "All days and their scheduled events in the requested month"
+          items:
+            $ref: '#/components/schemas/CalendarDay'
+
+    CalendarDay:
+      type: "object"
+      properties:
+        date:
+          type: "string"
+          format: "date"
+          example: "2026-11-12"
+
+        events:
+          type: "array"
+          items:
+            $ref: '#/components/schemas/ScheduleEvent'
+
+        reminders:
+          type: "array"
+          items:
+            $ref: '#/components/schemas/Reminder'
+
+    # WEATHER ----------------------
+
     WeatherResponse:
       type: "object"
       required:
