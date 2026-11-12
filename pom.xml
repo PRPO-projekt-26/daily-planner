@@ -1,4 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
+<!-- Koren pom.xml datoteke (<project>). Atributi so XML nastavitve:
+     xmlns              = imenski prostor Maven POM; elementi brez predpone spadajo vanj
+     xmlns:xsi          = deklarira predpono xsi za atribute XML Schema
+     xsi:schemaLocation = kje je shema (XSD) za POM; Maven je ne potrebuje, uporabljajo jo
+                          urejevalniki za dopolnjevanje in preverjanje -->
 <project    xmlns="http://maven.apache.org/POM/4.0.0"  
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -6,31 +12,40 @@
 <!-- verzija formata POM-a je pri mvn 3 in 4 vedno 4.0.0 -->
 <modelVersion>4.0.0</modelVersion>
 
+<!-- Podatki, ki enolično določajo ta projekt:
+     groupId    = skupina/organizacija, ki je lastnik projekta
+     artifactId = ime projekta
+     version    = verzija projekta -->
 <groupId>si.skupina7</groupId>
 <artifactId>daily-planner</artifactId>
-<version>1.0.0-SNAPSHOT</version>
+<version>1.0.0-SNAPSHOT</version>     <!-- SNAPSHOT = razvojna verzija, ki se še spreminja -->
+
+<!-- tip "pom": ta modul sam ne ustvari jar-a, služi samo kot starš in zbiralnik modulov -->
 <packaging>pom</packaging>
 
-<!-- TODO: dopolni, ko dodaš modul -->
+<!-- seznam podmodulov; Maven jih zgradi v tem vrstnem redu (glede na odvisnosti) -->
 <modules>
-    <module>daily-planner-rest</module> 
+    <module>daily-planner-rest</module> <!-- mapa z modulom, ki vsebuje REST aplikacijo -->
 </modules>
 
+<!-- skupne spremenljivke, ki jih lahko uporabljajo ta pom in vsi child pom-i kot ${ime} -->
 <properties>
-    <maven.compiler.release>25</maven.compiler.release>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <quarkus.platform.version>3.40.1.1</quarkus.platform.version>
-    <quarkus-plugin.version>${quarkus.platform.version}</quarkus-plugin.version>
+    <maven.compiler.release>25</maven.compiler.release> <!-- Java verzija, za katero se koda prevede (JDK 25) -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding> <!-- kodiranje izvornih datotek, da šumniki (č, š, ž) ne povzročajo težav -->
+    <quarkus.platform.version>3.40.1.1</quarkus.platform.version>  <!-- verzija Quarkus platforme; na enem mestu, da jo menjaš samo tukaj -->
+    <quarkus-plugin.version>${quarkus.platform.version}</quarkus-plugin.version> <!-- verzija quarkus-maven-plugin; enaka kot platforma (child pom jo uporabi kot ${quarkus-plugin.version}) -->
 </properties>
 
+
+<!-- samo UPRAVLJA verzije odvisnosti; same po sebi ne doda nobene knjižnice v projekt -->
 <dependencyManagement>
     <dependencies>
-        <dependency>
+        <dependency> <!-- uvozimo Quarkus BOM -->
             <groupId>io.quarkus.platform</groupId>
             <artifactId>quarkus-bom</artifactId>
-            <version>${quarkus.platform.version}</version>
-            <type>pom</type>
-            <scope>import</scope>
+            <version>${quarkus.platform.version}</version> 
+            <type>pom</type> <!-- BOM je pom datoteka, ne jar -->
+            <scope>import</scope> <!-- scope "import" pomeni: prepiši vse verzije iz BOM-a v naš dependencyManagement -->
         </dependency>
     </dependencies>
 </dependencyManagement> 

@@ -1,72 +1,108 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project    xmlns="http://maven.apache.org/POM/4.0.0"  
+<?xml version="1.0" encoding="UTF-8"?> <!-- XML deklaracija: ver. XML in kodiranje znakov -->
+<!-- imenski prostor za Maven POM, XML Schema atribute ter lokacija sheme za validacijo -->
+<project    xmlns="http://maven.apache.org/POM/4.0.0"   
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion> <!-- ver. POM modela, PRI MVN v3 oz v4 JE VEDNO 4.0.0!!! -->
 
-    <parent>
-        <groupId>si.skupina7</groupId>
-        <artifactId>daily-planner</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+    <!-- ta modul podeduje nastavitve iz parent pom-a-->
+    <parent>  <!-- podedovanje nastavitve iz root pom-a: properties, Java verzijo in uvožen Quarkus BOM -->
+        <groupId>si.skupina7</groupId> <!-- groupId starsa -->
+        <artifactId>daily-planner</artifactId> <!-- ime starsevskega projekta -->
+        <version>1.0.0-SNAPSHOT</version> <!-- ver. starsa, SNAPSHOT= razvojna verzija, ki se se spreminja-->
     </parent>
 
-    <artifactId>daily-planner-rest</artifactId>
+    <artifactId>daily-planner-rest</artifactId> <!-- ime modula, ki ga gradimo, ime je enako imenu mape, kjer je pom.xml -->
 
-    <dependencies>
+    <!-- knjižnice, ki jih modul dejansko potrebuje; verzij ni, ker jih določa Quarkus BOM v staršu -->
+    <dependencies> <!-- seznam knjižnic, ki jih projekt potrebuje -->
         <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-rest-jackson</artifactId>
+            <groupId>io.quarkus</groupId> <!-- Quarkus knjiznice -->
+            <artifactId>quarkus-rest-jackson</artifactId>  <!-- Quarkus REST (implementacija Jakarta REST / JAX-RS) + Jackson za pretvorbo objektov v JSON in nazaj -->
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-hibernate-validator</artifactId>
+            <artifactId>quarkus-hibernate-validator</artifactId> <!-- validacija podatkov z anotacijami (@NotNull, @Size, ...) -->
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-smallrye-openapi</artifactId>
+            <artifactId>quarkus-smallrye-openapi</artifactId>  <!-- servira OpenAPI spec na /q/openapi in Swagger UI na /q/swagger-ui -->
         </dependency>
     </dependencies>
 
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.openapitools</groupId>
-                <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>7.26.0</version>
-                <executions>
-                    <execution>
+    <build> <!-- navodila, kako se projekt gradi -->
+    <!-- Plugin je knjižnica, ki doda Mavnu sposobnosti. Vsak plugin vsebuje enega ali več ciljev (goals), to so posamezna opravila -->
+        <plugins> 
+
+        <!-- 1. plugin, ki generira kodo v javi iz OpenAPI specifikacije -->
+            <plugin> <!-- orodje, ki izvede en korak gradnje-->
+                <groupId>org.openapitools</groupId> <!-- skupina, ki je lastnik plugina -->
+                <artifactId>openapi-generator-maven-plugin</artifactId> 
+                <version>7.26.0</version> <!-- verzija plugina -->
+                <executions> <!-- kdaj in kaj plugin izvede-->
+                    <execution> <!-- en “zagon” plugina. Z njim določiš, kdaj in s kakšno konfiguracijo se plugin požene.-->
                         <goals>
-                            <goal>generate</goal>
+                        <!-- cilj "generate": iz openapi.yaml ustvari Java kodo.
+                        Plugin ima ta cilj privzeto vezan na fazo generate-sources,
+                        zato se požene pred prevajanjem in compiler že vidi generirane razrede. -->
+                            <goal>generate</goal> 
                         </goals>
-                        <configuration>
+                        <configuration> <!-- konfiguracija plugina, ki določa, kaj se bo generiralo in kam -->
+                    
+                    <!-- VHOD: pot do ročno napisane OpenAPI specifikacije (yaml).
+                    ${project.basedir} = mapa modula daily-planner-rest.
+                    Isto datoteko prebere tudi smallrye-openapi in jo servira na /q/openapi. -->
                             <inputSpec>${project.basedir}/src/main/resources/META-INF/openapi.yaml</inputSpec>
-                            <generatorName>jaxrs-spec</generatorName>
-                            <generateSupportingFiles>false</generateSupportingFiles>
-                            <apiPackage>si.skupina7.api</apiPackage>
-                            <modelPackage>si.skupina7.api.model</modelPackage>
+
+                            <!-- Izbira generatorja. jaxrs-spec generira strežniško stran v obliki Jakarta REST (JAX-RS)
+                            vmesnikov z anotacijami @Path, @GET, @Produces ... ter modelov (DTO razredov).
+                            Brez zagonskega ogrodja: ni vezan na Quarkus, zato ga uporabimo skupaj s quarkus-rest. -->
+                            <generatorName>jaxrs-spec</generatorName> 
+
+                            <!-- Pomožne datoteke generator običajno doda poleg API-jev (npr. pom.xml, README, RestApplication.java).
+                            Tukaj jih ne želimo, ker pom že imamo, Quarkus pa sam zažene aplikacijo. -->
+                            <generateSupportingFiles>false</generateSupportingFiles> 
+                            <apiPackage>si.skupina7.api</apiPackage> <!-- java paket za generirane API vmesnike -->
+                            <modelPackage>si.skupina7.api.model</modelPackage> <!-- paket za generirane modele (razredi, ki predstavljajo podatke) -->
+                            
+                            
+                            <!-- dodatne nastavitve, specificne za generator jaxrs-spec -->
                             <configOptions>
-                                <sourceFolder>src/main/java</sourceFolder>
-                                <interfaceOnly>true</interfaceOnly>
-                                <useJakartaEe>true</useJakartaEe>
-                                <useTags>true</useTags>
-                                <dateLibrary>java8</dateLibrary>
-                                <openApiNullable>false</openApiNullable>
-                                <generateJsonCreators>false</generateJsonCreators>
-                                <useSwaggerAnnotations>false</useSwaggerAnnotations>
+                            <!-- Podmapa v izhodni mapi (target/generated-sources/openapi), kamor se zapiše koda.
+                            Plugin nato to mapo samodejno doda med mape z izvorno kodo, da jo compiler vidi. -->
+                                <sourceFolder>src/main/java</sourceFolder>  
+                                <interfaceOnly>true</interfaceOnly> <!-- generiraj samo vmesnike; implementacijo napišeš sam -->
+                                
+                                <!-- Uporabi paket jakarta.ws.rs namesto javax.ws.rs. Quarkus 3 uporablja Jakarta EE 10,
+                                s starim javax pa bi koda ne bila prevedljiva. -->
+                                <useJakartaEe>true</useJakartaEe> 
+                                
+                                <!-- Razdeli operacije v vmesnike po "tagih" iz yaml (tag Weather → WeatherApi).
+                                Brez tega generator združuje po prvem delu poti (path). -->
+                                <useTags>true</useTags> 
+                                <dateLibrary>java8</dateLibrary> <!-- za datume uporabi java.time (LocalDate, OffsetDateTime) ..omogoca Jacksonu, da samodejno pretvori objekte v javi v JSON and via versa-->
+                                
+                                <!-- Ne ovijaj polj, ki so lahko null, v JsonNullable (org.openapitools.jackson.nullable).
+                                JsonNullable loči med "polje ni poslano" in "polje je poslano kot null". -->
+                                <openApiNullable>false</openApiNullable> 
+                                <generateJsonCreators>false</generateJsonCreators> <!-- ne generiraj @JsonCreator konstruktorjev -->
+                                <useSwaggerAnnotations>false</useSwaggerAnnotations> <!-- ne dodajaj Swagger anotacij v kodo -->
                             </configOptions>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- 2. plugin: Quarkus gradnja in dev mode (mvn quarkus:dev) -->
             <plugin>
                 <groupId>io.quarkus</groupId>
-                <artifactId>quarkus-maven-plugin</artifactId>
-                <version>${quarkus-plugin.version}</version>
+                <artifactId>quarkus-maven-plugin</artifactId> 
+                <version>${quarkus-plugin.version}</version>  <!-- vrednost je definirana v properties starševskega pom-a -->
                 <executions>
                     <execution>
                         <goals>
-                            <goal>build</goal>
+                            <goal>build</goal> <!-- ob "mvn package" ustvari target/quarkus-app/ z quarkus-run.jar -->
                         </goals>
                     </execution>
                 </executions>
@@ -74,3 +110,27 @@
         </plugins>
     </build>
 </project>
+
+
+
+<!-- 
+ZA KOLOKVIJ:
+to sum up:
+- ta modul podeduje nastavitve iz parent pom-a (properties, Java verzijo in uvožen Quarkus BOM)
+- v dependencies so knjižnice, ki jih modul dejansko potrebuje; verzij ni, ker jih določa Quarkus BOM v staršu
+- build/plugins so orodja, ki izvedejo posamezne korake gradnje (generiranje kode iz OpenAPI specifikacije, gradnja Quarkus aplikacije)
+    - build = navodila, kako se projekt gradi
+    - plugins = seznam pluginov, ki se uporabijo pri gradnji
+    - plugin = orodje, ki izvede en korak gradnje
+    - goal = konkretno opravilo, ki ga plugin izvede
+    - execution = en “zagon” plugina. Z njim določiš, kdaj in s kakšno konfiguracijo se plugin požene.
+
+Potek mvn clean package:
+    1. clean:    zbriše target/
+    2. generate-sources: openapi-generator (goal generate) ustvari Java kodo iz yaml
+    3. process-resources: resources plugin kopira src/main/resources v target/classes
+    4. compile:  compiler plugin prevede ročno in generirano kodo
+    5. test:     surefire požene teste (pri nas jih še ni)
+    6. package:  jar plugin naredi jar, nato quarkus-maven-plugin (goal build)
+                pripravi target/quarkus-app/quarkus-run.jar
+-->
