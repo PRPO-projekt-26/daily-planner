@@ -7,20 +7,37 @@ servers:
   - url: "http://localhost:8080/api/v1"
 
 tags:
-  - name: Planner
-    description: Daily overview and calandar operations
-  - name: Reminders
-    description: Reminder management
+  - name: "Planner"
+    description: "Daily overview and calandar operations"
+  - name: "Reminders"
+    description: "Reminder management"
 
 paths:
-  # DAILY OVERVIEW
+
+  
+
   /planner/daily:
+    # DAILY OVERVIEW
+    # is called every time that the user opens the app 
     get:
       tags:
         - "Planner"
       summary: "Get daily overview"
       description: "Returns the person's daily schedule and calendar, top 3 reminder and weather forecast."
       operationId: "getDailyOverview"
+
+      # Have decided not to add the parametrers for the filering and sorting as it will happen in 
+      # backend with a query. The only order we want is ascending and only the events which endTime is biger than current time.
+      parameters:
+      - name: "date"
+        in: "query"
+        required: false
+        description: "The date for which events should be retrieved. Defaults to today."
+        schema:
+          type: "string"
+          format: "date"
+          example: "2026-05-21"
+
       responses:
         '200':
           description: "Daily overview retrieved successfully"
@@ -30,26 +47,38 @@ paths:
                 $ref: '#/components/schemas/DailyOverview'
 
         '404':
-          description: "Person not found"
+          description: "User not found"
 
-  # MONTHLY CALENDAR
+  
 
-  /planner/calendars:
+  /planner/calendars/{year}/{month}:
+    # MONTHLY CALENDAR
+    #i  s called by the user when they want to acces the whole calendar
     get:
       tags:
         - "Planner"
       summary: "Get monthly calendar"
-      description: "Returns the person's calendar for a specified month."
+      description: "Returns the user's calendar for a specified month."
       operationId: "getMonthlyCalendar"
       parameters:
         - name: "month"
-          in: "query"
+          in: "path"
           required: true
-          description: "Month to retrieve in MM-YYYY format"
+          description: "Month to retrieve in MM format"
           schema:
             type: "string"
-            pattern: '^(0[1-9]|1[0-2])-\d{4}$'
-            example: "11-2026"
+            pattern: '^(0[1-9]|1[0-2])$'
+            example: "11"
+
+        - name: "year"
+          in: "path"
+          required: true
+          description: "Year to retrieve in YYYY format"
+          schema:
+            type: "string"
+            pattern: '^\d{4}$'
+            example: "2026"
+
 
       responses:
         '200':
@@ -60,12 +89,12 @@ paths:
                 $ref: '#/components/schemas/MonthlyCalendar'
 
         '404':
-          description: "Person not found"
+          description: "User not found"
 
 
-  # CREATE REMINDER
-
-  /planner/reminders:
+  /planner/reminders/user:
+    # CREATE REMINDER
+    # is called by the user when they want to create a new reminder
     post:
       tags:
         - "Reminders"
@@ -92,50 +121,36 @@ paths:
           description: "Invalid reminder data"
 
         '404':
-          description: "Person not found"
+          description: "User not found"
 
-  
-
-  # GET ALL REMINDERS
+    # GET REMINDERS FOR USER
+    # is called by the user when they want to see all of their reminders
     get:
       tags:
         - "Reminders"
-      summary: "Get all the reminders"
-      description: "Retrives a list of all the existing reminders that have to be sent out as push notifications"
-      operationId: "getAllRemiders"
-
-      parameters:
-        - name: "dueBefore"
-          in: "query"
-          required: false 
-          description: "Retrives only the reminders that are due before the specifed date and time"
-          schema: 
-            type: "string"
-            format: "date-time"
-
-        - name: "notificationSent"
-          in: "query"
-          required: false
-          description: "Filter reminders according to whether a notification was sent."
-          schema:
-            type: "boolean"
+      summary: "Get reminders of a user"
+      description: "Returns all reminders belonging to the user."
+      operationId: "getPersonReminders"
 
       responses:
         '200':
-          description: "Reminders retrived successfully"
+          description: "Person's reminders retrieved successfully"
           content:
-            aplication/json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/ReminderList'
 
+        '404':
+          description: "User not found"
 
-  # DELETE REMINDER
-  /planner/reminders/{reminderId}:
+  /planner/reminders/user/{reminderId}:
+    # DELETE REMINDER
+    # is called by the user when they want to delete a reminder
     delete:
       tags:
         - "Reminders"
       summary: "Delete a reminder"
-      description: "Deletes a reminder using its unique ID"
+      description: "Deletes a reminder using its unique id"
       operationId: "deleteReminder"
       parameters:
         - name: "reminderId"
@@ -152,29 +167,83 @@ paths:
         '404':
           description: "Reminder not found"
 
+    # PATCH REMINDER
+    # is called by user when they want to update the reminder
+    patch:
+      tags:
+        - "Reminders"
+      summary: "Update a remider"
+      description: "Updates the reminder using its unique id"
+      operationId: "patchRemindersUser"
+      parameters:
+        - name: "reminderId"
+          in: "path"
+          required: true
+          description: "Unique ID of the reminder"
+          schema:
+            type: "string"
+      responses:
+        '204':
+          description: "Reminder updated successfully"
+        
+        '404':
+          description: "Reminder not found"
 
 
-  # GET REMINDERS FOR AUTHENTICATED PERSON
+  
 
+  /planner/reminders:
 
-  /planner/reminders/user:
+  # GET ALL REMINDERS
+  # is call by the system(app) for sending notifiactions to users
     get:
       tags:
         - "Reminders"
-      summary: "Get reminders of a person"
-      description: "Returns all reminders belonging to the authenticated person."
-      operationId: "getPersonReminders"
+      summary: "Get all the reminders"
+      description: "Retrives a list of all the existing reminders that have to be sent out as push notifications"
+      operationId: "getAllRemiders"
+
+      parameters:
+        - name: "dueBefore"
+          in: "query"
+          required: false 
+          description: "Retrives only the reminders that are due before the specifed date and time"
+          schema: 
+            type: "string"
+            format: "date-time"
+            example: "2026-05-12T16:30:00+01:00"
 
       responses:
         '200':
-          description: "Person's reminders retrieved successfully"
+          description: "Reminders retrived successfully"
           content:
-            application/json:
+            aplication/json:
               schema:
                 $ref: '#/components/schemas/ReminderList'
 
+  
+  /planner/reminders/{reminderId}:
+    # PATCH REMINDER
+    # is called by the app after sending the push notification for the reminder with reminderId
+    patch:
+      tags:
+        - "Reminders"
+      summary: "Update the sentAt parameter"
+      description: "Updates the sentAt paramater in reminders. Is called after the push notification of the reminder with the reminderId has been sent"
+      operationId: "patchReminders"
+      parameters:
+        - name: "reminderId"
+          in: "path"
+          required: true
+          description: "Unique ID of the reminder"
+          schema:
+            type: "string"
+      responses:
+        '204':
+          description: "Reminder updated successfully"
+        
         '404':
-          description: "Person not found"
+          description: "Reminder not found"
 
   /weather:
     get:
@@ -205,14 +274,12 @@ paths:
           description: "City not found"
 
 
-# COMPONENTS
-
-
 components:
 
   schemas:
 
-    # REMINDER--------------------
+    # REMINDERS
+    # this is the body of the request when the user is creating an new one
     ReminderRequest:
       type: "object"
       required:
@@ -227,16 +294,17 @@ components:
         dueAt:
           type: "string"
           format: "date-time" 
-          description: "Date and time of when the reminder should be triggered"
+          description: "Date and time of the task in the content"
           example: "2026-05-12T16:30:00+01:00" # YYYY-MM-DDTHH:MM:SS+zamik(HH:MM)
 
+    # this is how the whole request looks like
     Reminder:
       type: "object"
       required:
         - "id"
         - "content"
         - "dueAt"
-        - "notificationSent"
+        - "sentAt"
       properties:
         id:
           type: "string"
@@ -252,12 +320,14 @@ components:
           format: "date-time"
           example: "2026-11-12T16:30:00+01:00" # YYYY-MM-DDTHH:MM:SS+zamik(HH:MM)
 
-        notificationSent:
-          type: "boolean"
-          description: "Indicates whether the push notification has been sent"
-          default: false
-          example: false
+        sentAt:
+          type: "string"
+          format: "date-time"
+          description: "Indicates when the push notification has been sent. If the parameter is emprty it indicates that the notification has yet to be sent."
+          default: null
+          example: "2026-05-12T16:30:00+01:00"
 
+    # this is returned when app/user request all the requests/ all of users requests
     ReminderList:
       type: "object"
       properties:
@@ -267,8 +337,8 @@ components:
             $ref: '#/components/schemas/Reminder'
 
 
-    # DAILY OVERVIEW -------------------------
-
+    # DAILY OVERVIEW 
+    # is reurned when the user opens the app
     DailyOverview:
       type: "object"
       properties:
@@ -293,8 +363,9 @@ components:
         weather:
           $ref: '#/components/schemas/WeatherResponse'
 
-    # SCHEDULE EVENT--------------------------
 
+    # SCHEDULE EVENT
+    # this is how an event on the calendar is structured
     ScheduleEvent:
       type: "object"
       properties:
@@ -304,11 +375,11 @@ components:
 
         title:
           type: "string"
-          example: "University lecture"
+          example: "Lecture"
 
         description:
           type: "string"
-          example: "Software Engineering"
+          example: "PRPO"
 
         startTime:
           type: "string"
@@ -328,14 +399,20 @@ components:
             - "IMPORTED_SCHEDULE"
           example: "GOOGLE_CALENDAR"
 
-    # MONTHLY CALENDAR------------------
-
+    # MONTHLY CALENDAR
+    # is returned when user requests to see the pecified month and year
     MonthlyCalendar:
       type: "object"
       properties:
+        year:
+          type: "string"
+          description: "The requested year"
+          example: "2026"
+
         month:
           type: "string"
-          example: "2026-11"
+          description: "The requested month"
+          example: "05"
 
         days:
           type: "array"
@@ -343,6 +420,7 @@ components:
           items:
             $ref: '#/components/schemas/CalendarDay'
 
+    # how one day in the calendar looks
     CalendarDay:
       type: "object"
       properties:
@@ -356,29 +434,45 @@ components:
           items:
             $ref: '#/components/schemas/ScheduleEvent'
 
-        reminders:
-          type: "array"
-          items:
-            $ref: '#/components/schemas/Reminder'
-
-    # WEATHER ----------------------
-
+    # WEATHER
     WeatherResponse:
       type: "object"
       required:
         - "city"
-        - "temperature"
+        - "currentTemperature"
+        - "maximumTemperature"
+        - "minimumTemperature"
+        - "precipitation"
+        - "cloudCover"
       properties:
         city:
           type: "string"
           example: "Radovljica"
           description: "Name of the city for which the weather information is provided."
-        temperature:
+        currentTemperature:
           type: "number"
           format: "double"
           example: 20.5
           description: "Current temperature in Celsius."
-        description:
+        maximumTemperature:
+          type: "number"
+          format: "double"
+          example: 26.8
+          description: "Maximum temperature tor that day in Celsius."
+        minimumTemperature:
+          type: "number"
+          format: "double"
+          example: 12.2
+          description: "Minimum temperature for that day in Celsius."
+        precipitation:
+          type: "string"
+          example: "There will be rain in the afternoon"
+          description: "The rain forecast"
+        cloudCover:
           type: "string"
           example: "Clear sky"
+          description: "The cloud cover for that day"
+        description:
+          type: "string"
+          example: "Sunny day"
           description: "Description of the current weather conditions."
