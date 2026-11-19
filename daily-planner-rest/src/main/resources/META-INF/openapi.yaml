@@ -99,7 +99,7 @@ paths:
       tags:
         - "Reminders"
       summary: "Create a reminder"
-      description: "Creates a reminder belonging to the authenticated person."
+      description: "Creates a reminder belonging to the user."
       operationId: "createReminder"
 
       requestBody:
