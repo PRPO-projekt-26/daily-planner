@@ -1,72 +1,95 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<project    xmlns="http://maven.apache.org/POM/4.0.0"  
+<?xml version="1.0" encoding="UTF-8"?> <!-- XML declaration: XML version and character encoding -->
+
+<!-- Root of the pom.xml file (<project>). The attributes are XML settings:
+     xmlns              = XML namespace of the Maven POM; elements without a prefix belong to it
+     xmlns:xsi          = declares the xsi prefix for XML Schema attributes
+     xsi:schemaLocation = where the schema (XSD) for the POM is located; Maven does not need it,
+                          it is used by editors for autocompletion and validation -->
+<project    xmlns="http://maven.apache.org/POM/4.0.0"
             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-    <modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion> <!-- version of the POM model; for Maven 3 and 4 it is ALWAYS 4.0.0 -->
 
-    <parent>
-        <groupId>si.skupina7</groupId>
-        <artifactId>daily-planner</artifactId>
-        <version>1.0.0-SNAPSHOT</version>
+    <!-- this module inherits settings from the parent pom -->
+    <parent>  <!-- inherits settings from the root pom: properties, Java version and the imported Quarkus BOM -->
+        <groupId>si.skupina7</groupId> <!-- groupId of the parent -->
+        <artifactId>daily-planner</artifactId> <!-- name of the parent project -->
+        <version>1.0.0-SNAPSHOT</version> <!-- version of the parent; SNAPSHOT = development version that is still changing -->
     </parent>
 
-    <artifactId>daily-planner-rest</artifactId>
+    <artifactId>daily-planner-rest</artifactId> <!-- name of the module we are building; by convention equal to the name of the folder containing this pom.xml -->
 
-    <dependencies>
+    <!-- libraries the module actually needs; there are no versions because the Quarkus BOM in the parent defines them -->
+    <dependencies> <!-- list of libraries the project needs -->
         <dependency>
-            <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-rest-jackson</artifactId>
+            <groupId>io.quarkus</groupId> <!-- Quarkus libraries -->
+            <artifactId>quarkus-rest-jackson</artifactId>  <!-- Quarkus REST (implementation of Jakarta REST / JAX-RS) + Jackson for converting objects to JSON and back -->
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-hibernate-validator</artifactId>
+            <artifactId>quarkus-hibernate-validator</artifactId> <!-- data validation with annotations (@NotNull, @Size, ...) -->
         </dependency>
         <dependency>
             <groupId>io.quarkus</groupId>
-            <artifactId>quarkus-smallrye-openapi</artifactId>
+            <artifactId>quarkus-smallrye-openapi</artifactId>  <!-- serves the OpenAPI spec at /q/openapi and Swagger UI at /q/swagger-ui -->
         </dependency>
     </dependencies>
 
 
-    <build>
+    <build> <!-- instructions for how the project is built -->
+    <!-- A plugin is a library that adds capabilities to Maven. Each plugin contains one or more goals, which are individual tasks -->
         <plugins>
-            <plugin>
-                <groupId>org.openapitools</groupId>
+
+        <!-- 1st plugin: generates Java code from the OpenAPI specification -->
+            <plugin> <!-- a tool that performs one step of the build -->
+                <groupId>org.openapitools</groupId> <!-- group that owns the plugin -->
                 <artifactId>openapi-generator-maven-plugin</artifactId>
-                <version>7.26.0</version>
-                <executions>
-                    <execution>
+                <version>7.26.0</version> <!-- plugin version -->
+                <executions> <!-- when and what the plugin runs -->
+                    <execution> <!-- one "run" of the plugin. It defines when and with which configuration the plugin runs. -->
                         <goals>
+                        <!-- goal "generate": creates Java code from openapi.yaml.
+                             The plugin has this goal bound to the generate-sources phase by default,
+                             so it runs before compilation and the compiler already sees the generated classes. -->
                             <goal>generate</goal>
                         </goals>
-                        <configuration>
+                        <configuration> <!-- plugin configuration that defines what is generated and where -->
+
+                    <!-- INPUT of the generator: path to the hand-written OpenAPI specification (yaml).
+                         ${project.basedir} = folder of the daily-planner-rest module.
+                         The generated code is not created here, but in target/generated-sources/openapi -->
                             <inputSpec>${project.basedir}/src/main/resources/META-INF/openapi.yaml</inputSpec>
-                            <generatorName>jaxrs-spec</generatorName>
-                            <generateSupportingFiles>false</generateSupportingFiles>
-                            <apiPackage>si.skupina7.api</apiPackage>
-                            <modelPackage>si.skupina7.api.model</modelPackage>
+                            <generatorName>jaxrs-spec</generatorName> <!-- jaxrs-spec = server-side skeleton (interfaces and models) for Jakarta REST (JAX-RS) -->
+                            <generateSupportingFiles>false</generateSupportingFiles> <!-- do not generate supporting files (pom.xml, README, RestApplication, etc.) -->
+                            <apiPackage>si.skupina7.api</apiPackage> <!-- package for the generated API interfaces (e.g. WeatherApi); folder si/skupina7/api inside target/generated-sources -->
+                            <modelPackage>si.skupina7.api.model</modelPackage> <!-- package for the generated models (classes that represent data, e.g. WeatherResponse) -->
+
+
+                            <!-- additional settings specific to the jaxrs-spec generator -->
                             <configOptions>
-                                <sourceFolder>src/main/java</sourceFolder>
-                                <interfaceOnly>true</interfaceOnly>
-                                <useJakartaEe>true</useJakartaEe>
-                                <useTags>true</useTags>
-                                <dateLibrary>java8</dateLibrary>
-                                <openApiNullable>false</openApiNullable>
-                                <generateJsonCreators>false</generateJsonCreators>
-                                <useSwaggerAnnotations>false</useSwaggerAnnotations>
+                                <sourceFolder>src/main/java</sourceFolder>  <!-- subfolder inside target/generated-sources/openapi where the code is written -->
+                                <interfaceOnly>true</interfaceOnly> <!-- generate only interfaces; you write the implementation yourself -->
+                                <useJakartaEe>true</useJakartaEe> <!-- use jakarta.* instead of javax.* (required for Quarkus 3) -->
+                                <useTags>true</useTags> <!-- one interface per "tag" from the specification -->
+                                <dateLibrary>java8</dateLibrary> <!-- use java.time for dates (LocalDate, OffsetDateTime); this only selects the TYPES, Jackson does the JSON conversion -->
+                                <openApiNullable>false</openApiNullable> <!-- do not wrap nullable fields in JsonNullable (we do not have that library in dependencies) -->
+                                <generateJsonCreators>false</generateJsonCreators> <!-- do not generate @JsonCreator constructors; models stay plain POJOs with getters/setters -->
+                                <useSwaggerAnnotations>false</useSwaggerAnnotations> <!-- do not add Swagger annotations to the code -->
                             </configOptions>
                         </configuration>
                     </execution>
                 </executions>
             </plugin>
+
+            <!-- 2nd plugin: Quarkus build and dev mode (mvn quarkus:dev) -->
             <plugin>
                 <groupId>io.quarkus</groupId>
-                <artifactId>quarkus-maven-plugin</artifactId>
-                <version>${quarkus-plugin.version}</version>
+                <artifactId>quarkus-maven-plugin</artifactId> <!-- enables dev mode and, on mvn package, runs "augmentation" (goal build) that prepares target/quarkus-app/quarkus-run.jar -->
+                <version>${quarkus-plugin.version}</version>  <!-- value is defined in the properties of the parent pom -->
                 <executions>
                     <execution>
                         <goals>
-                            <goal>build</goal>
+                            <goal>build</goal> <!-- on "mvn package" creates target/quarkus-app/ with quarkus-run.jar -->
                         </goals>
                     </execution>
                 </executions>
@@ -74,3 +97,27 @@
         </plugins>
     </build>
 </project>
+
+
+
+<!--
+FOR THE KOLOKVIJ:
+to sum up:
+- this module inherits settings from the parent pom (properties, Java version and the imported Quarkus BOM)
+- dependencies are the libraries the module actually needs; there are no versions because the Quarkus BOM in the parent defines them
+- build/plugins are the tools that perform individual build steps (generating code from the OpenAPI specification, building the Quarkus application)
+    - build = instructions for how the project is built
+    - plugins = list of plugins used in the build
+    - plugin = a tool that performs one step of the build
+    - goal = a concrete task that a plugin performs
+    - execution = one "run" of a plugin. It defines when and with which configuration the plugin runs.
+
+Maven has several phases that it executes in sequence: validate, generate-sources, process-resources, compile, test-compile, test, package, verify, install, deploy.
+For each phase, all plugin goals bound to that phase are executed.
+mvn clean package first runs the clean phase (separate clean lifecycle, deletes target/), then all phases of the default lifecycle up to and including package:
+    - generate-sources: openapi-generator (goal generate) creates Java code from the yaml
+    - process-resources: resources plugin copies src/main/resources to target/classes
+    - compile: compiler plugin compiles hand-written and generated code
+    - test: surefire runs the tests (none yet)
+    - package: jar plugin creates the jar, then quarkus-maven-plugin (goal build) prepares target/quarkus-app/quarkus-run.jar
+-->
