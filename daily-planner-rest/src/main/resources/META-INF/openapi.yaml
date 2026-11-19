@@ -201,7 +201,7 @@ paths:
         - "Reminders"
       summary: "Get all the reminders"
       description: "Retrives a list of all the existing reminders that have to be sent out as push notifications"
-      operationId: "getAllRemiders"
+      operationId: "getAllReminders"
 
       parameters:
         - name: "dueBefore"
