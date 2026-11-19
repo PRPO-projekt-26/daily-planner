@@ -172,8 +172,8 @@ paths:
     patch:
       tags:
         - "Reminders"
-      summary: "Update a remider"
-      description: "Updates the reminder using its unique id"
+      summary: "Update a reminder"
+      description: "Updates the reminder using its unique id. Only the content and dueAt parameters can be updated."
       operationId: "patchRemindersUser"
       parameters:
         - name: "reminderId"
@@ -182,9 +182,23 @@ paths:
           description: "Unique ID of the reminder"
           schema:
             type: "string"
+
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ReminderPatchRequest'
       responses:
-        '204':
+        '200':
           description: "Reminder updated successfully"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Reminder'
+
+        '400':
+          description: "Invalid reminder data"
         
         '404':
           description: "Reminder not found"
@@ -318,12 +332,12 @@ components:
         dueAt:
           type: "string"
           format: "date-time"
-          example: "2026-11-12T16:30:00+01:00" # YYYY-MM-DDTHH:MM:SS+zamik(HH:MM)
+          example: "2026-11-12T16:30:00+01:00" # YYYY-MM-DDTHH:MM:SS+(HH:MM)
 
         sentAt:
           type: "string"
           format: "date-time"
-          description: "Indicates when the push notification has been sent. If the parameter is emprty it indicates that the notification has yet to be sent."
+          description: "Indicates when the push notification has been sent. If the parameter is empty it indicates that the notification has yet to be sent."
           default: null
           example: "2026-05-12T16:30:00+01:00"
 
@@ -335,6 +349,17 @@ components:
           type: "array"
           items:
             $ref: '#/components/schemas/Reminder'
+
+    ReminderPatchRequest:
+      type: "object"
+      properties:
+        content:
+          type: "string"
+          example: "do homework due to tomorrow instead of Sunday!"
+        dueAt:
+          type: "string"
+          format: "date-time"
+          example: "2026-11-12T16:30:00+01:00"
 
 
     # DAILY OVERVIEW 
