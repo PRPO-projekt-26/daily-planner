@@ -338,7 +338,7 @@ components:
 
 
     # DAILY OVERVIEW 
-    # is reurned when the user opens the app
+    # is returned when the user opens the app
     DailyOverview:
       type: "object"
       properties:
