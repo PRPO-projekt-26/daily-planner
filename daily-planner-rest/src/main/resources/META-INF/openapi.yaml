@@ -99,7 +99,7 @@ paths:
       tags:
         - "Reminders"
       summary: "Create a reminder"
-      description: "Creates a reminder belonging to the authenticated person."
+      description: "Creates a reminder belonging to the user."
       operationId: "createReminder"
 
       requestBody:
@@ -201,7 +201,7 @@ paths:
         - "Reminders"
       summary: "Get all the reminders"
       description: "Retrives a list of all the existing reminders that have to be sent out as push notifications"
-      operationId: "getAllRemiders"
+      operationId: "getAllReminders"
 
       parameters:
         - name: "dueBefore"
@@ -217,7 +217,7 @@ paths:
         '200':
           description: "Reminders retrived successfully"
           content:
-            aplication/json:
+            application/json:
               schema:
                 $ref: '#/components/schemas/ReminderList'
 
