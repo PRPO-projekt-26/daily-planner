@@ -400,7 +400,7 @@ components:
           example: "GOOGLE_CALENDAR"
 
     # MONTHLY CALENDAR
-    # is returned when user requests to see the pecified month and year
+    # is returned when the user requests to see the specified month and year
     MonthlyCalendar:
       type: "object"
       properties:
