@@ -125,10 +125,10 @@ public class RemindersVir implements RemindersApi {
 
 
      /**
-     * Retrives a list of all the existing reminders that have to be sent out as push notifications
+     * Retrieves a list of all the existing reminders that have to be sent out as push notifications
      *
-     * @param dueBefore Retrives only the reminders that are due before the specifed date and time
-     * @return Reminders retrived successfully
+     * @param dueBefore Retrieves only the reminders that are due before the specified date and time
+     * @return Reminders retrieved successfully
      */
     @Override
     public ReminderList getAllReminders(OffsetDateTime dueBefore) {
@@ -184,7 +184,7 @@ public class RemindersVir implements RemindersApi {
     }
 
     /**
-     * Updates the sentAt paramater in reminders. Is called after the push notification of the reminder with the reminderId has been sent
+     * Updates the sentAt parameter in reminders. Is called after the push notification of the reminder with the reminderId has been sent
      *
      * @param reminderId Unique ID of the reminder
      * @return Reminder updated successfully

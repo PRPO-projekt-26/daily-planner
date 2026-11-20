@@ -214,14 +214,14 @@ paths:
       tags:
         - "Reminders"
       summary: "Get all the reminders"
-      description: "Retrives a list of all the existing reminders that have to be sent out as push notifications"
+      description: "Retrieves a list of all the existing reminders that have to be sent out as push notifications"
       operationId: "getAllReminders"
 
       parameters:
         - name: "dueBefore"
           in: "query"
           required: false 
-          description: "Retrives only the reminders that are due before the specifed date and time"
+          description: "Retrieves only the reminders that are due before the specified date and time"
           schema: 
             type: "string"
             format: "date-time"
@@ -229,7 +229,7 @@ paths:
 
       responses:
         '200':
-          description: "Reminders retrived successfully"
+          description: "Reminders retrieved successfully"
           content:
             application/json:
               schema:
@@ -337,6 +337,7 @@ components:
         sentAt:
           type: "string"
           format: "date-time"
+          nullable: true
           description: "Indicates when the push notification has been sent. If the parameter is empty it indicates that the notification has yet to be sent."
           default: null
           example: "2026-05-12T16:30:00+01:00"
