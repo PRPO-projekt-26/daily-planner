@@ -1,0 +1,51 @@
+### Create a reminder
+POST http://localhost:8080/api/v1/planner/reminders/user
+Content-Type: application/json
+Accept: application/json
+
+{
+  "content": "Class scheduled",
+  "dueAt": "2026-12-01T20:00:00+01:00"
+}
+
+### Create a reminder
+POST http://localhost:8080/api/v1/planner/reminders/user
+Content-Type: application/json
+Accept: application/json
+
+{
+  "content": "Driving lessons",
+  "dueAt": "2026-05-01T11:00:00+05:00"
+}
+
+### Error case: invalid date format (should return 400)
+POST http://localhost:8080/api/v1/planner/reminders/user
+Content-Type: application/json
+
+{
+  "content": "Wrong Time",
+  "dueAt": "2026-11-01T42:00:00+05:00"
+}
+
+### Get all reminders of the user (including already sent)
+GET http://localhost:8080/api/v1/planner/reminders/user
+Accept: application/json
+
+### Get reminders that still need a push notification
+GET http://localhost:8080/api/v1/planner/reminders
+Accept: application/json
+
+### Same, but only those due before a given time
+GET http://localhost:8080/api/v1/planner/reminders?dueBefore=2026-12-31T23:59:00%2B01:00
+Accept: application/json
+
+### Error case: invalid body (should return 400)
+POST http://localhost:8080/api/v1/planner/reminders/user
+Content-Type: application/json
+
+{
+  "content": "No due date"
+}
+
+### Error case: unknown id (should return 404)
+DELETE http://localhost:8080/api/v1/planner/reminders/user/does-not-exist
