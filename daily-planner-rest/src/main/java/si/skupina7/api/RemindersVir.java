@@ -1,23 +1,19 @@
 package si.skupina7.api;
 
 import java.time.OffsetDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.ws.rs.BadRequestException;
 import jakarta.ws.rs.NotFoundException;
 import si.skupina7.api.model.Reminder;
 import si.skupina7.api.model.ReminderList;
 import si.skupina7.api.model.ReminderPatchRequest;
 import si.skupina7.api.model.ReminderRequest;
-
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.ArrayList;
-
-import jakarta.ws.rs.BadRequestException;
-import jakarta.ws.rs.NotFoundException;
 
 
 @ApplicationScoped
@@ -111,9 +107,17 @@ public class RemindersVir implements RemindersApi {
     @Override 
     public void deleteReminder(String reminderId) {
         System.out.println("This method is called when deleting a reminder!");
-        if (reminders.containsKey(reminderId)) {
-            reminders.remove(reminderId);
-        } else {
+        // if (reminders.containsKey(reminderId)) {
+        //     reminders.remove(reminderId);
+        // } else {
+        //     throw new NotFoundException("Reminder not found");
+        // }
+
+        // ATOMIC OPERATION:
+        // reminders.remove(reminderId) is a single atomic operation 
+        // on a ConcurrentHashMap and returns the removed value, 
+        // or null if the key wasn’t there.
+        if (reminders.remove(reminderId) == null) {
             throw new NotFoundException("Reminder not found");
         }
     }
@@ -189,14 +193,26 @@ public class RemindersVir implements RemindersApi {
     @Override 
     public void patchReminders(String reminderId) {
         System.out.println("This method is called when updating the sentAt parameter of a reminder!");
-        if (!reminders.containsKey(reminderId)) {
+        // if (!reminders.containsKey(reminderId)) {
+        //     throw new NotFoundException("Reminder not found");
+        // }
+
+        // Reminder reminder = reminders.get(reminderId);
+        // // Update the sentAt parameter
+        // reminder.setSentAt(OffsetDateTime.now()); // Set the current date and time as sentAt
+        // reminders.put(reminderId, reminder);
+
+        // ATOMIC OPERATION:
+        // computeIfPresent runs atomically per key, so concurrent updates can't interleave!!
+        // computeIfPresent will only update the reminder if it is present in the map, otherwise it will return null
+        //example of use:     capitalCities.computeIfPresent("England", (k, v) -> v + "(" + k + ")");
+        Reminder updatedReminder = reminders.computeIfPresent(reminderId, (id, reminder) -> {
+            reminder.setSentAt(OffsetDateTime.now());
+            return reminder;
+        });
+        if (updatedReminder == null) {
             throw new NotFoundException("Reminder not found");
         }
-
-        Reminder reminder = reminders.get(reminderId);
-        // Update the sentAt parameter
-        reminder.setSentAt(OffsetDateTime.now()); // Set the current date and time as sentAt
-        reminders.put(reminderId, reminder);
     }
 
     /**
@@ -210,18 +226,42 @@ public class RemindersVir implements RemindersApi {
      */
     @Override
     public Reminder patchRemindersUser(String reminderId, ReminderPatchRequest reminderPatchRequest) {
-        Reminder reminder = reminders.get(reminderId);
-        if (reminder == null) {
+        // Reminder reminder = reminders.get(reminderId);
+        // if (reminder == null) {
+        //     throw new NotFoundException("Reminder not found");
+        // }
+        // if (reminderPatchRequest.getContent() != null) {
+        //     reminder.setContent(reminderPatchRequest.getContent());
+        // }
+        // if (reminderPatchRequest.getDueAt() != null) {
+        //     reminder.setDueAt(reminderPatchRequest.getDueAt());
+        //     reminder.setSentAt(null);                       // new reminder has been set, so the sentAt parameter should be reset to null, indicating that the push notification has not been sent yet
+        // }
+        // return reminder;
+
+        if (reminderPatchRequest == null) {
+                    throw new BadRequestException("Invalid reminder data");
+        }
+
+        // ATOMIC OPERATION:
+        Reminder updatedReminder = reminders.computeIfPresent(reminderId, (id, reminder) -> {
+            if (reminderPatchRequest.getContent() != null) {
+                reminder.setContent(reminderPatchRequest.getContent());
+            }
+
+            OffsetDateTime newDueAt = reminderPatchRequest.getDueAt();
+            if (newDueAt != null) {    
+                if (!newDueAt.isEqual(reminder.getDueAt())){    // isEqual compares the instant (ignores offset differences) for example: 2026-11-12T16:30:00+01:00 isEqual to 2026-11-12T15:30:00Z
+                    reminder.setDueAt(reminderPatchRequest.getDueAt());                    
+                    reminder.setSentAt(null);                       // new reminder has been set, so the sentAt parameter should be reset to null, indicating that the push notification has not been sent yet
+                }
+            }
+            return reminder;
+        });
+        if (updatedReminder == null) {
             throw new NotFoundException("Reminder not found");
         }
-        if (reminderPatchRequest.getContent() != null) {
-            reminder.setContent(reminderPatchRequest.getContent());
-        }
-        if (reminderPatchRequest.getDueAt() != null) {
-            reminder.setDueAt(reminderPatchRequest.getDueAt());
-            reminder.setSentAt(null);                       // new reminder has been set, so the sentAt parameter should be reset to null, indicating that the push notification has not been sent yet
-        }
-        return reminder;
+        return updatedReminder;
     }
 
 }
