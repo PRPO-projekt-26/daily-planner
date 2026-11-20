@@ -17,7 +17,7 @@ import si.skupina7.api.model.ReminderRequest;
 
 
 @ApplicationScoped
-public class RemindersVir implements RemindersApi {
+public class RemindersSource implements RemindersApi {
     
 
     // mock base {id, reminder}
@@ -57,7 +57,7 @@ public class RemindersVir implements RemindersApi {
         sentAt:
           type: "string"
           format: "date-time"
-          description: "Indicates when the push notification has been sent. If the parameter is emprty it indicates that the notification has yet to be sent."
+          description: "Indicates when the push notification has been sent. If the parameter is empty it indicates that the notification has yet to be sent."
           default: null
           example: "2026-05-12T16:30:00+01:00"
  */
