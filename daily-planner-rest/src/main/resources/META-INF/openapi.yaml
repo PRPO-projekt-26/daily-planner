@@ -8,7 +8,7 @@ servers:
 
 tags:
   - name: "Planner"
-    description: "Daily overview and calandar operations"
+    description: "Daily overview and calendar operations"
   - name: "Reminders"
     description: "Reminder management"
 
@@ -62,22 +62,24 @@ paths:
       operationId: "getMonthlyCalendar"
       parameters:
         - name: "month"
-          in: "path"
+          in: path
           required: true
           description: "Month to retrieve in MM format"
           schema:
-            type: "string"
-            pattern: '^(0[1-9]|1[0-2])$'
-            example: "11"
+            type: integer
+            minimum: 1
+            maximum: 12
+            example: 11
 
         - name: "year"
-          in: "path"
+          in: path
           required: true
           description: "Year to retrieve in YYYY format"
           schema:
-            type: "string"
-            pattern: '^\d{4}$'
-            example: "2026"
+            type: integer
+            minimum: 1000
+            maximum: 9999
+            example: 2026
 
 
       responses:
@@ -209,7 +211,7 @@ paths:
   /planner/reminders:
 
   # GET ALL REMINDERS
-  # is call by the system(app) for sending notifiactions to users
+  # is call by the system(app) for sending notifications to users
     get:
       tags:
         - "Reminders"
@@ -431,12 +433,12 @@ components:
       type: "object"
       properties:
         year:
-          type: "string"
+          type: "integer"
           description: "The requested year"
           example: "2026"
 
         month:
-          type: "string"
+          type: "integer"
           description: "The requested month"
           example: "05"
 
