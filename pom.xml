@@ -26,6 +26,7 @@
 <!-- list of submodules; Maven builds them in this order (based on dependencies) -->
 <modules>
     <module>daily-planner-rest</module> <!-- folder with the module that contains the REST application -->
+    <module>daily-planner-cdi</module>  <!-- folder with the module that contains the CDI beans -->
 </modules>
 
 <!-- shared variables that this pom and all child poms can use as ${name} -->
